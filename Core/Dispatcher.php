@@ -5,7 +5,7 @@ namespace Core;
 class Dispatcher {
 
     private $params = [
-		'controller' => 'products',
+		'controller' => 'product',
 		'action' => 'index',
         'params' => '',
 	];

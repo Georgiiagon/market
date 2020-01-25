@@ -105,6 +105,20 @@ abstract class Model
         return new static($sql->fetch(PDO::FETCH_ASSOC));
     }
 
+    public static function get()
+    {
+        $table = (new static())->table;
+
+        $sql = self::$db->prepare("SELECT * FROM `$table`");
+
+        $sql->execute();
+
+        foreach ($sql->fetchAll(PDO::FETCH_ASSOC) as $item)
+            $models[] = new static($item);
+
+        return $models;
+    }
+
     public static function paginate($page, $limit, $order, $orderDir)
     {
         $order = static::$db->quote(str_replace("'", '', $order));

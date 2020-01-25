@@ -6,5 +6,5 @@ use Core\Model;
 
 class TransportType extends Model
 {
-	protected $table = 'transport_type';
+	protected $table = 'transport_types';
 }
