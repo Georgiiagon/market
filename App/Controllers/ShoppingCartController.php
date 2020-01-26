@@ -33,10 +33,6 @@ class ShoppingCartController {
             return;
         }
 
-        if (!isset($_SESSION['shopping_cart'])) {
-            $_SESSION['shopping_cart'] = [];
-        }
-
         if (isset($_SESSION['shopping_cart'][$_POST['product_id']])) {
             $_SESSION['shopping_cart'][$_POST['product_id']] += $_POST['product_count'];
         } else {
@@ -80,5 +76,6 @@ class ShoppingCartController {
 
         echo json_encode(['status' => 'success', 'message' => 'Product removed!']);
 
+        return;
     }
 }

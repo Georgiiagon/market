@@ -17,6 +17,9 @@ class Dispatcher {
         if (!isset($_SESSION["cash"])) {
             $_SESSION["cash"] = 100;
         }
+        if (!isset($_SESSION['shopping_cart'])) {
+            $_SESSION['shopping_cart'] = [];
+        }
 
         $request = new Request;
         $url = $request->url;
