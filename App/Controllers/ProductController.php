@@ -9,7 +9,8 @@ class ProductController {
 
     public function index()
     {
-        $products = Product::get();
+        $products = Product::all();
+        var_dump($_SESSION['cash']);
 
         return View::render('products.index', [
             'products' => $products,

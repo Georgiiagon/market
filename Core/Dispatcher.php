@@ -12,6 +12,12 @@ class Dispatcher {
 
     public function dispatch()
     {
+        session_start();
+
+        if (!isset($_SESSION["cash"])) {
+            $_SESSION["cash"] = 100;
+        }
+
         $request = new Request;
         $url = $request->url;
 

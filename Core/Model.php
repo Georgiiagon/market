@@ -105,7 +105,33 @@ abstract class Model
         return new static($sql->fetch(PDO::FETCH_ASSOC));
     }
 
-    public static function get()
+    public static function findViaEmail($email)
+    {
+        $table = (new static())->table;
+
+        $sql = self::$db->prepare("SELECT * FROM `$table` WHERE email = :email");
+
+        $sql->bindValue(':email', (string)$email , PDO::PARAM_STR);
+        $sql->execute();
+
+        return new static($sql->fetch(PDO::FETCH_ASSOC));
+    }
+
+    public static function findWhereIn(array $ids)
+    {
+        $table = (new static())->table;
+        $stringIds = implode(',', $ids);
+        $sql = self::$db->prepare("SELECT * FROM `$table` WHERE id in ($stringIds)");
+
+        $sql->execute();
+
+        foreach ($sql->fetchAll(PDO::FETCH_ASSOC) as $item)
+            $models[] = new static($item);
+
+        return $models;
+    }
+
+    public static function all()
     {
         $table = (new static())->table;
 
