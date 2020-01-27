@@ -2,17 +2,16 @@
 
 namespace App\Controllers;
 
-use Core\View;
-use App\Models\Product;
 use App\Models\Rating;
 
-class RatingController {
+class RatingController
+{
 
     public  function store()
     {
         if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true)
         {
-            $rating = Rating::findWhere([
+            $rating = (new Rating)->findWhere([
                 ['user_id', $_SESSION["user_id"]],
                 ['product_id', $_POST['product_id']],
             ]);

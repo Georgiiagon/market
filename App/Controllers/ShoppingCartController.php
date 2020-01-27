@@ -6,12 +6,13 @@ use Core\View;
 use App\Models\Product;
 use App\Models\TransportType;
 
-class ShoppingCartController {
+class ShoppingCartController
+{
 
     public function index()
     {
-        $products = Product::findWhereIn(array_keys($_SESSION['shopping_cart']));
-        $transportTypes = TransportType::all();
+        $products = (new Product)->findWhereIn(array_keys($_SESSION['shopping_cart']));
+        $transportTypes = (new TransportType)->all();
 
         return View::render('shopping_cart', [
             'products' => $products,
@@ -22,16 +23,20 @@ class ShoppingCartController {
 
     public function add()
     {
-        $product = Product::find($_POST['product_id']);
-        if (!$product->id) {
+        $product = (new Product)->find($_POST['product_id']);
+        if (!$product->id)
+        {
             echo json_encode(['status' => 'error', 'message' => 'Product not found!']);
 
             return;
         }
 
-        if (isset($_SESSION['shopping_cart'][$_POST['product_id']])) {
+        if (isset($_SESSION['shopping_cart'][$_POST['product_id']]))
+        {
             $_SESSION['shopping_cart'][$_POST['product_id']] += $_POST['product_count'];
-        } else {
+        }
+        else
+        {
             $_SESSION['shopping_cart'][$_POST['product_id']] = $_POST['product_count'];
         }
 
@@ -42,16 +47,19 @@ class ShoppingCartController {
 
     public function change()
     {
-        $product = Product::find($_POST['product_id']);
-        if (!$product->id) {
+        $product = (new Product)->find($_POST['product_id']);
+        if (!$product->id)
+        {
             echo json_encode(['status' => 'error', 'message' => 'Product not found!']);
 
             return;
         }
 
-        if (isset($_SESSION['shopping_cart'][$_POST['product_id']])) {
+        if (isset($_SESSION['shopping_cart'][$_POST['product_id']]))
+        {
             $_SESSION['shopping_cart'][$_POST['product_id']] = $_POST['product_count'];
         }
+
         echo json_encode(['status' => 'success', 'message' => 'Product quantity changed!']);
 
         return;
@@ -59,14 +67,16 @@ class ShoppingCartController {
 
     public function remove()
     {
-        $product = Product::find($_POST['product_id']);
-        if (!$product->id) {
+        $product = (new Product)->find($_POST['product_id']);
+        if (!$product->id)
+        {
             echo json_encode(['status' => 'error', 'message' => 'Product not found!']);
 
             return;
         }
 
-        if (isset($_SESSION['shopping_cart'][$_POST['product_id']])) {
+        if (isset($_SESSION['shopping_cart'][$_POST['product_id']]))
+        {
             unset($_SESSION['shopping_cart'][$_POST['product_id']]);
         }
 
@@ -77,21 +87,24 @@ class ShoppingCartController {
 
     public function pay()
     {
-
-        $products = Product::findWhereIn(array_keys($_SESSION['shopping_cart']));
+        $products = (new Product)->findWhereIn(array_keys($_SESSION['shopping_cart']));
         $subTotalPrice = (new Product())->countSubTotalPrice($products);
-        $transportType = TransportType::find($_POST['transport_type']);
+        $transportType = (new TransportType)->find($_POST['transport_type']);
 
-        if (!$transportType->id) {
+        if (!$transportType->id)
+        {
             header('Location: /shopping-cart?error=1');
             exit;
         }
 
         $resultPrice = $subTotalPrice + $transportType->price;
 
-        if ($_SESSION['cash'] >= $resultPrice) {
+        if ($_SESSION['cash'] >= $resultPrice)
+        {
             $_SESSION['cash'] -= $resultPrice;
-        } else {
+        }
+        else
+        {
             header('Location: /shopping-cart?error=1');
             exit;
         }

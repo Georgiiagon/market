@@ -15,7 +15,8 @@ abstract class Model
 
 	function __construct($attributes = [])
 	{
-		if (self::$db === null) {
+		if (self::$db === null)
+		{
 			$bdd = 'mysql:host=' . Database::HOST . ';dbname=' . Database::NAME . ';charset=utf8';
 			self::$db = new PDO($bdd, Database::USER, Database::PASSWORD);
 		}
@@ -61,7 +62,8 @@ abstract class Model
     {
         $fields = [];
 
-        foreach ($this->attributes as $key => $value) {
+        foreach ($this->attributes as $key => $value)
+        {
             if($key == $this->key)
                 continue;
 
@@ -72,7 +74,8 @@ abstract class Model
 
         $sql = self::$db->prepare("UPDATE `$this->table` SET $fields WHERE id = :id");
 
-        foreach ($this->attributes as $key => $value) {
+        foreach ($this->attributes as $key => $value)
+        {
             if($key == $this->key)
                 continue;
 
@@ -84,7 +87,7 @@ abstract class Model
         return $sql->execute();
     }
 
-    public static function count()
+    public function count()
     {
         $table = (new static())->table;
 
@@ -92,7 +95,7 @@ abstract class Model
             ->fetchColumn();
     }
 
-    public static function find($id)
+    public function find($id)
     {
         $table = (new static())->table;
 
@@ -105,7 +108,7 @@ abstract class Model
         return new static($sql->fetch(PDO::FETCH_ASSOC));
     }
 
-    public static function findViaEmail($email)
+    public function findViaEmail($email)
     {
         $table = (new static())->table;
 
@@ -117,7 +120,7 @@ abstract class Model
         return new static($sql->fetch(PDO::FETCH_ASSOC));
     }
 
-    public static function findWhereIn(array $ids)
+    public function findWhereIn(array $ids)
     {
         $table = (new static())->table;
         $stringIds = implode(',', $ids);
@@ -131,13 +134,15 @@ abstract class Model
         return $models;
     }
     // [['user_id', 1], ['product_id', 2]]
-    public static function findWhere(array $queries)
+    public function findWhere(array $queries)
     {
         $table = (new static())->table;
 
         $additionalSql = '';
-        foreach ($queries as $key => $query) {
-            if ($key != 0) {
+        foreach ($queries as $key => $query)
+        {
+            if ($key != 0)
+            {
                 $additionalSql .= ' and ';
             }
 
@@ -151,7 +156,7 @@ abstract class Model
         return new static($sql->fetch(PDO::FETCH_ASSOC));
     }
 
-    public static function all()
+    public function all()
     {
         $table = (new static())->table;
 
@@ -165,11 +170,12 @@ abstract class Model
         return $models;
     }
 
-    public static function compositeLeftjoin($select, $foreignTable, $thisField, $foreignField, $groupBy = '')
+    public function compositeLeftjoin($select, $foreignTable, $thisField, $foreignField, $groupBy = '')
     {
         $table = (new static())->table;
 
-        if ($groupBy !== '') {
+        if ($groupBy !== '')
+        {
             $groupBy = 'GROUP  BY ' . $groupBy;
         }
 
@@ -185,7 +191,7 @@ abstract class Model
         return $models;
     }
 
-    public static function paginate($page, $limit, $order, $orderDir)
+    public function paginate($page, $limit, $order, $orderDir)
     {
         $order = static::$db->quote(str_replace("'", '', $order));
         $orderDir = static::$db->quote(str_replace("'", '', $orderDir));

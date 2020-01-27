@@ -2,15 +2,15 @@
 
 namespace App\Controllers;
 
-use Core\View;
 use App\Models\User;
 
 class AuthController
 {
     public function login()
     {
-        $user = (new User())->findViaEmail($_POST['email']);
-        if (password_verify($_POST['password'], $user->password)) {
+        $user = (new User)->findViaEmail($_POST['email']);
+        if (password_verify($_POST['password'], $user->password))
+        {
             session_destroy();
             session_start();
 
@@ -19,7 +19,9 @@ class AuthController
             $_SESSION["user_last_name"] = $user->last_name;
             $_SESSION["user_first_name"] = $user->first_name;
 
-        } else {
+        }
+        else
+        {
             header('Location: /?error=1');
             exit;
         }
@@ -42,19 +44,22 @@ class AuthController
         $lastName = trim(htmlspecialchars($_POST['last_name']));
         $email = trim(htmlspecialchars($_POST['email']));
 
-        if ($_POST['password'] != $_POST['password_confirmation']) {
+        if ($_POST['password'] != $_POST['password_confirmation'])
+        {
             header('Location: /?error=1');
             exit;
         }
 
-        if (!$firstName || !$lastName || !$email || !$_POST['password']) {
+        if (!$firstName || !$lastName || !$email || !$_POST['password'])
+        {
             header('Location: /?error=1');
             exit;
         }
 
         $user = (new User())->findViaEmail($email);
 
-        if ($user->id) {
+        if ($user->id)
+        {
             header('Location: /?error=1');
             exit;
         }

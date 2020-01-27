@@ -2,7 +2,8 @@
 
 namespace Core;
 
-class Dispatcher {
+class Dispatcher
+{
 
     private $params = [
 		'controller' => 'product',
@@ -21,13 +22,16 @@ class Dispatcher {
         $controller = $this->toStudlyCaps($this->params['controller']);
         $controller = 'App\Controllers\\' . $controller . 'Controller';
 
-        if (class_exists($controller)) {
+        if (class_exists($controller))
+        {
             $action = $this->toCamelCase($this->params['action']);
 
             $controllerObject = new $controller();
 
             call_user_func_array([$controllerObject, $action], $this->params['params']);
-        } else {
+        }
+        else
+        {
             throw new \Exception("$controller not found");
         }
     }

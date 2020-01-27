@@ -12,7 +12,8 @@ class Product extends Model
     {
         $subTotalPrice = 0;
 
-        foreach ($products as $product) {
+        foreach ($products as $product)
+        {
             $subTotalPrice += $product->price * $_SESSION['shopping_cart'][$product->id];
         }
 
