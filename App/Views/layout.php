@@ -137,11 +137,12 @@
                             <div class="col-xs-6 col-sm-6 col-md-6">
                                 <div class="form-group">
                                     <input type="password" name="password_confirmation" required id="password_confirmation" class="form-control input-sm" placeholder="Confirm Password">
+                                    <span id='message'></span>
                                 </div>
                             </div>
                         </div>
 
-                        <input type="submit" class="btn btn-info btn-block">
+                        <input type="submit" id="submit" class="btn btn-info btn-block">
 
                     </form>
 
@@ -151,10 +152,25 @@
     </div>
 
       <script>
-        $('#goToRegistration').on('click', function () {
-            $('#loginModal').modal('toggle');
-            $('#registerationModal').modal();
-        });
+          $(document).ready(function () {
+              $('#goToRegistration').on('click', function () {
+                  $('#loginModal').modal('toggle');
+                  $('#registerationModal').modal();
+              });
+
+              $('#password, #password_confirmation').on('keyup', function () {
+                  if ($('#password').val() == $('#password_confirmation').val())
+                  {
+                      $('#message').html('Matching').css('color', 'green');
+                      $('#submit').prop("disabled", false);
+                  }
+                  else
+                  {
+                      $('#message').html('Not Matching').css('color', 'red');
+                      $('#submit').prop("disabled", true);
+                  }
+              });
+          });
     </script>
   </body>
 </html>
