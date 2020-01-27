@@ -15,8 +15,7 @@ class Dispatcher
     {
         Middleware::sessionStart();
 
-        $request = new Request;
-        $url = $request->url;
+        $url = (new Url())->url;
 
         $this->parseUrl($url);
         $controller = $this->toStudlyCaps($this->params['controller']);

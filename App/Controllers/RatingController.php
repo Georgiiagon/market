@@ -2,40 +2,23 @@
 
 namespace App\Controllers;
 
-use App\Models\Rating;
+use App\Services\RatingService;
+use Core\Request;
 
 class RatingController
 {
+    protected $service;
+
+    public function __construct()
+    {
+        $this->service = new RatingService();
+    }
 
     public  function store()
     {
-        if (isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true)
-        {
-            $rating = (new Rating)->findWhere([
-                ['user_id', $_SESSION["user_id"]],
-                ['product_id', $_POST['product_id']],
-            ]);
-        }
+        $request = new Request();
 
-        if ($rating->id || isset($_SESSION['rating'][$_POST['product_id']]))
-        {
-            echo json_encode(['status' => 'error', 'message' => 'You have already rated the product!']);
-
-            return;
-        }
-        else
-        {
-            $rating = new Rating([
-                'rating' => $_POST['rating'],
-                'product_id' => $_POST['product_id'],
-                'user_id' => $_SESSION["user_id"] ?? 0,
-            ]);
-            $rating->save();
-
-            $_SESSION['rating'][$_POST['product_id']] = true;
-        }
-
-        echo json_encode(['status' => 'success', 'message' => 'Rating stored']);
+        $this->service->store($request->product_id, $request->rating);
 
         return;
     }

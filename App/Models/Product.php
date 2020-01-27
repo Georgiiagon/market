@@ -8,15 +8,14 @@ class Product extends Model
 {
 	protected $table = 'products';
 
-	public function countSubTotalPrice($products)
+	public function withRating()
     {
-        $subTotalPrice = 0;
-
-        foreach ($products as $product)
-        {
-            $subTotalPrice += $product->price * $_SESSION['shopping_cart'][$product->id];
-        }
-
-        return $subTotalPrice;
+        return $this->compositeLeftjoin(
+            'products.*, sum(ratings.rating)/count(ratings.rating) rating',
+            'ratings',
+            'products.id',
+            'product_id',
+            'products.id'
+        );
     }
 }

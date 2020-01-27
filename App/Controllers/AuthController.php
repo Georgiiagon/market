@@ -2,78 +2,40 @@
 
 namespace App\Controllers;
 
-use App\Models\User;
+use App\Services\AuthService;
+use Core\Request;
 
 class AuthController
 {
+    protected $service;
+
+    public function __construct()
+    {
+        $this->service = new AuthService();
+    }
+
     public function login()
     {
-        $user = (new User)->findViaEmail($_POST['email']);
-        if (password_verify($_POST['password'], $user->password))
-        {
-            session_destroy();
-            session_start();
+        $request = new Request();
 
-            $_SESSION["loggedin"] = true;
-            $_SESSION["user_id"] = $user->id;
-            $_SESSION["user_last_name"] = $user->last_name;
-            $_SESSION["user_first_name"] = $user->first_name;
-
-        }
-        else
-        {
-            header('Location: /?error=1');
-            exit;
-        }
-
-        header('Location: /');
+        $this->service->login($request->email, $request->password);
     }
 
     public function logout()
     {
-        session_destroy();
-
-        header('Location: /');
-        exit;
+        $this->service->logout();
     }
-
 
     public function registration()
     {
-        $firstName = trim(htmlspecialchars($_POST['first_name']));
-        $lastName = trim(htmlspecialchars($_POST['last_name']));
-        $email = trim(htmlspecialchars($_POST['email']));
+        $request = new Request();
 
-        if ($_POST['password'] != $_POST['password_confirmation'])
-        {
-            header('Location: /?error=1');
-            exit;
-        }
-
-        if (!$firstName || !$lastName || !$email || !$_POST['password'])
-        {
-            header('Location: /?error=1');
-            exit;
-        }
-
-        $user = (new User())->findViaEmail($email);
-
-        if ($user->id)
-        {
-            header('Location: /?error=1');
-            exit;
-        }
-
-        $user = new User([
-            'first_name' => $firstName,
-            'last_name' => $lastName,
-            'email' => $email,
-            'password' => password_hash($_POST['password'], PASSWORD_DEFAULT),
-        ]);
-
-        $user->save();
-
-        header('Location: /?registration=1');
-        exit;
+        $this->service->registration(
+            $request->first_name,
+            $request->last_name,
+            $request->email,
+            $request->password,
+            $request->password_confirmation
+        );
     }
 }

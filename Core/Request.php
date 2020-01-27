@@ -1,13 +1,22 @@
 <?php
 
+
 namespace Core;
 
 class Request
 {
-    public $url;
-    
+    protected $attributes = [];
+
     public function __construct()
     {
-        $this->url = $_SERVER["REQUEST_URI"];
+        foreach ($_POST as $key => $value)
+        {
+            $this->attributes[$key] = $value;
+        }
+    }
+
+    function __get($name)
+    {
+        return $this->attributes[$name];
     }
 }

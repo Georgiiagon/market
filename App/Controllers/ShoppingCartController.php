@@ -3,113 +3,62 @@
 namespace App\Controllers;
 
 use Core\View;
-use App\Models\Product;
 use App\Models\TransportType;
+
+use App\Services\ShoppingCartService;
+use Core\Request;
 
 class ShoppingCartController
 {
+    protected $service;
+
+    public function __construct()
+    {
+        $this->service = new ShoppingCartService();
+    }
 
     public function index()
     {
-        $products = (new Product)->findWhereIn(array_keys($_SESSION['shopping_cart']));
-        $transportTypes = (new TransportType)->all();
-
         return View::render('shopping_cart', [
-            'products' => $products,
-            'subTotalPrice' => (new Product())->countSubTotalPrice($products),
-            'transportTypes' => $transportTypes,
+            'products' => $this->service->getProducts(),
+            'subTotalPrice' => $this->service->countSubTotalPrice(),
+            'transportTypes' => (new TransportType)->all(),
         ]);
     }
 
     public function add()
     {
-        $product = (new Product)->find($_POST['product_id']);
-        if (!$product->id)
-        {
-            echo json_encode(['status' => 'error', 'message' => 'Product not found!']);
+        $request = new Request();
 
-            return;
-        }
-
-        if (isset($_SESSION['shopping_cart'][$_POST['product_id']]))
-        {
-            $_SESSION['shopping_cart'][$_POST['product_id']] += $_POST['product_count'];
-        }
-        else
-        {
-            $_SESSION['shopping_cart'][$_POST['product_id']] = $_POST['product_count'];
-        }
-
-        echo json_encode(['status' => 'success', 'message' => 'Product added!']);
+        $this->service->add($request->product_id, $request->product_count);
 
         return;
     }
 
     public function change()
     {
-        $product = (new Product)->find($_POST['product_id']);
-        if (!$product->id)
-        {
-            echo json_encode(['status' => 'error', 'message' => 'Product not found!']);
+        $request = new Request();
 
-            return;
-        }
-
-        if (isset($_SESSION['shopping_cart'][$_POST['product_id']]))
-        {
-            $_SESSION['shopping_cart'][$_POST['product_id']] = $_POST['product_count'];
-        }
-
-        echo json_encode(['status' => 'success', 'message' => 'Product quantity changed!']);
+        $this->service->change($request->product_id, $request->product_count);
 
         return;
     }
 
     public function remove()
     {
-        $product = (new Product)->find($_POST['product_id']);
-        if (!$product->id)
-        {
-            echo json_encode(['status' => 'error', 'message' => 'Product not found!']);
+        $request = new Request();
 
-            return;
-        }
-
-        if (isset($_SESSION['shopping_cart'][$_POST['product_id']]))
-        {
-            unset($_SESSION['shopping_cart'][$_POST['product_id']]);
-        }
-
-        echo json_encode(['status' => 'success', 'message' => 'Product removed!']);
+        $this->service->remove($request->product_id);
 
         return;
     }
 
     public function pay()
     {
-        $products = (new Product)->findWhereIn(array_keys($_SESSION['shopping_cart']));
-        $subTotalPrice = (new Product())->countSubTotalPrice($products);
-        $transportType = (new TransportType)->find($_POST['transport_type']);
+        $request = new Request();
 
-        if (!$transportType->id)
-        {
-            header('Location: /shopping-cart?error=1');
-            exit;
-        }
+        $this->service->pay($request->transport_type);
 
-        $resultPrice = $subTotalPrice + $transportType->price;
-
-        if ($_SESSION['cash'] >= $resultPrice)
-        {
-            $_SESSION['cash'] -= $resultPrice;
-        }
-        else
-        {
-            header('Location: /shopping-cart?error=1');
-            exit;
-        }
-
-        $_SESSION['shopping_cart'] = [];
         header('Location: /shopping-cart?pay=1');
         exit;
     }
