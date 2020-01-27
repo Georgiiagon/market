@@ -6,14 +6,10 @@ use Core\View;
 use App\Models\Product;
 use App\Models\TransportType;
 
-
-
 class ShoppingCartController {
 
     public function index()
     {
-        var_dump($_SESSION['cash']);
-
         $products = Product::findWhereIn(array_keys($_SESSION['shopping_cart']));
         $transportTypes = TransportType::all();
 
@@ -77,5 +73,31 @@ class ShoppingCartController {
         echo json_encode(['status' => 'success', 'message' => 'Product removed!']);
 
         return;
+    }
+
+    public function pay()
+    {
+
+        $products = Product::findWhereIn(array_keys($_SESSION['shopping_cart']));
+        $subTotalPrice = (new Product())->countSubTotalPrice($products);
+        $transportType = TransportType::find($_POST['transport_type']);
+
+        if (!$transportType->id) {
+            header('Location: /shopping-cart?error=1');
+            exit;
+        }
+
+        $resultPrice = $subTotalPrice + $transportType->price;
+
+        if ($_SESSION['cash'] >= $resultPrice) {
+            $_SESSION['cash'] -= $resultPrice;
+        } else {
+            header('Location: /shopping-cart?error=1');
+            exit;
+        }
+
+        $_SESSION['shopping_cart'] = [];
+        header('Location: /shopping-cart?pay=1');
+        exit;
     }
 }

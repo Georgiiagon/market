@@ -20,6 +20,8 @@
                                 <input
                                     id="product_count_<?php echo $product->id; ?>"
                                     type="number"
+                                    min="0"
+                                    step="1"
                                     onchange="changeCount(this, <?php echo $product->id; ?>, <?php echo $product->price; ?>)"
                                     class="form-control product_count" type="text"
                                     value="<?php echo $_SESSION['shopping_cart'][$product->id]?>"
@@ -39,12 +41,14 @@
                             <td></td>
                             <td>Shipping, $</td>
                             <td>
-                                <select class="form-control" id="shipping_types" onchange="changeTransportType(this)">
-                                    <option price="0.00" value="">Not chosen</option>
-                                    <?php foreach ($transportTypes as $type) : ?>
-                                        <option price="<?php echo $type->price; ?>" value="<?php echo $type->id ?>"><?php echo $type->name . ', ' . $type->price . ' $' ?></option>
-                                    <?php endforeach; ?>
-                                </select>
+                                <form id="from_buy_products" method="post" action="/shopping-cart/pay">
+                                    <select name="transport_type" class="form-control" id="shipping_types" onchange="changeTransportType(this)" required>
+                                        <option price="0.00" value="">Not chosen</option>
+                                        <?php foreach ($transportTypes as $type) : ?>
+                                            <option price="<?php echo $type->price; ?>" value="<?php echo $type->id ?>"><?php echo $type->name . ', ' . $type->price . ' $' ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </form>
                             </td>
                         </tr>
                         <tr>
@@ -69,7 +73,7 @@
                     <a href="/" class="btn btn-block btn-light">Continue Shopping</a>
                 </div>
                 <div class="col-sm-12 col-md-6 text-right">
-                    <button class="btn btn-lg btn-block btn-success text-uppercase" type="submit">Pay</button>
+                    <button id="form_button_pay" class="btn btn-lg btn-block btn-success text-uppercase" form="from_buy_products" type="submit">Pay</button>
                 </div>
             </div>
         </div>
@@ -85,9 +89,14 @@
 </div>
 
 <script>
+    let my_cash = <?php echo $_SESSION['cash'] ?>;
     function changeCount(e, id, price)
     {
-        $(document).ready(function () {
+        if ($(e).val() < 0) {
+            $(e).val(0);
+        }
+        $(document).ready(function ()
+        {
             $.ajax({
                 url: '/shopping-cart/change',
                 type: 'POST',
@@ -96,10 +105,12 @@
                     product_count: $(e).val()
                 },
                 dataType: 'JSON',
-                success: function (data) {
+                success: function (data)
+                {
                     alert(data.message);
 
-                    if (data.status === 'success') {
+                    if (data.status === 'success')
+                    {
                         let newPrice = ($(e).val() * price).toFixed(2);
                         $('#product_result_price_' + id).text(newPrice);
                         $('#product_result_price_' + id).attr('value', newPrice);
@@ -113,28 +124,54 @@
     function changeTransportType(e)
     {
         let shipping_type = Number($(e).children("option:selected").attr('price'));
-        let sub_total_value = Number($('#sub_total_price').attr('value'));
-        $('#total_price').attr('value', Number(sub_total_value + shipping_type).toFixed(2));
-        $('#total_price').text(Number(sub_total_value + shipping_type).toFixed(2));
+        let sub_total_price = Number($('#sub_total_price').attr('value'));
+        let total_price = sub_total_price + shipping_type;
+        $('#total_price').attr('value', Number(sub_total_price + shipping_type).toFixed(2));
+        $('#total_price').text(Number(sub_total_price + shipping_type).toFixed(2));
+
+        disableButtonPay(total_price, sub_total_price);
     }
     
-    function recountTotal() {
-        let sub_total_value = 0;
+    function recountTotal()
+    {
+        let sub_total_price = 0;
         $('.product_result_price').each(function () {
-            sub_total_value += Number($(this).attr('value'));
+            sub_total_price += Number($(this).attr('value'));
         })
 
-        $('#sub_total_price').attr('value', Number(sub_total_value).toFixed(2));
-        $('#sub_total_price').text(Number(sub_total_value).toFixed(2));
+        $('#sub_total_price').attr('value', Number(sub_total_price).toFixed(2));
+        $('#sub_total_price').text(Number(sub_total_price).toFixed(2));
 
         let shipping_type = Number($('#shipping_types').children("option:selected").attr('price'));
+        let total_price = Number(sub_total_price + shipping_type).toFixed(2);
+        $('#total_price').attr('value', Number(sub_total_price + shipping_type).toFixed(2));
+        $('#total_price').text(Number(sub_total_price + shipping_type).toFixed(2));
 
-        $('#total_price').attr('value', Number(sub_total_value + shipping_type).toFixed(2));
-        $('#total_price').text(Number(sub_total_value + shipping_type).toFixed(2));
+        disableButtonPay(total_price, sub_total_price);
+    }
+
+    function disableButtonPay(total_price, sub_total_price) {
+        if (sub_total_price === 0)
+        {
+            $('#form_button_pay').prop("disabled", true);
+            $('#form_button_pay').text('Cart is empty!');
+        }
+        else if (my_cash < total_price)
+        {
+            $('#form_button_pay').prop("disabled", true);
+            $('#form_button_pay').text('Not enough money');
+        }
+        else
+        {
+            $('#form_button_pay').prop("disabled", false);
+            $('#form_button_pay').text('pay');
+        }
     }
     
-    function removeProduct(e, id) {
-        $(document).ready(function () {
+    function removeProduct(e, id)
+    {
+        $(document).ready(function ()
+        {
             $.ajax({
                 url: '/shopping-cart/remove',
                 type: 'POST',
@@ -143,13 +180,13 @@
                 },
                 dataType: 'JSON',
                 success: function (data) {
-                    if (data.status === 'success') {
+                    if (data.status === 'success')
+                    {
                         $(e).closest('tr').remove();
 
                         recountTotal();
-                    } else {
-
                     }
+                    else{}
                     alert(data.message);
                 }
             });

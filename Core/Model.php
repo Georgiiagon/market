@@ -130,12 +130,52 @@ abstract class Model
 
         return $models;
     }
+    // [['user_id', 1], ['product_id', 2]]
+    public static function findWhere(array $queries)
+    {
+        $table = (new static())->table;
+
+        $additionalSql = '';
+        foreach ($queries as $key => $query) {
+            if ($key != 0) {
+                $additionalSql .= ' and ';
+            }
+
+            $additionalSql .= $query[0] . ' = ' . (int) $query[1];
+        }
+
+        $sql = self::$db->prepare("SELECT * FROM `$table` WHERE {$additionalSql}");
+
+        $sql->execute();
+
+        return new static($sql->fetch(PDO::FETCH_ASSOC));
+    }
 
     public static function all()
     {
         $table = (new static())->table;
 
         $sql = self::$db->prepare("SELECT * FROM `$table`");
+
+        $sql->execute();
+
+        foreach ($sql->fetchAll(PDO::FETCH_ASSOC) as $item)
+            $models[] = new static($item);
+
+        return $models;
+    }
+
+    public static function compositeLeftjoin($select, $foreignTable, $thisField, $foreignField, $groupBy = '')
+    {
+        $table = (new static())->table;
+
+        if ($groupBy !== '') {
+            $groupBy = 'GROUP  BY ' . $groupBy;
+        }
+
+        $sql = self::$db->prepare(
+            "SELECT {$select} FROM `$table` LEFT JOIN {$foreignTable} ON  {$foreignTable}.{$foreignField} = {$thisField} {$groupBy}"
+        );
 
         $sql->execute();
 

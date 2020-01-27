@@ -15,7 +15,7 @@ class AuthController
             session_start();
 
             $_SESSION["loggedin"] = true;
-            $_SESSION["id"] = $user->id;
+            $_SESSION["user_id"] = $user->id;
             $_SESSION["user_last_name"] = $user->last_name;
             $_SESSION["user_first_name"] = $user->first_name;
 
