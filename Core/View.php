@@ -4,24 +4,24 @@ namespace Core;
 
 class View
 {
-	public static function render($view, $params = [])
-	{
-		$layoutPath = dirname(__DIR__) . "/App/Views/layout.php";
-		$viewPath = dirname(__DIR__) . '/App/Views/' . str_replace('.', '/', $view) . '.php';
-
+    public static function render($view, $params = [])
+    {
+        $layoutPath = dirname(__DIR__) . "/App/Views/layout.php";
+        $viewPath = dirname(__DIR__) . '/App/Views/' . str_replace('.', '/', $view) . '.php';
+	    
         extract($params);
 
         ob_start();
-		require $layoutPath;
-		$contentLayout = ob_get_contents();
-		ob_end_clean();
+        require $layoutPath;
+        $contentLayout = ob_get_contents();
+        ob_end_clean();
 
-		ob_start();
-		require $viewPath;
-		$contentView = ob_get_contents();
-		ob_end_clean();
+        ob_start();
+        require $viewPath;
+        $contentView = ob_get_contents();
+        ob_end_clean();
 
-		echo str_replace('@content', $contentView, $contentLayout);
+	echo str_replace('@content', $contentView, $contentLayout);
     }
 
     private static function getContent($file)
