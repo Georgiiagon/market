@@ -6,10 +6,10 @@ class Dispatcher
 {
 
     private $params = [
-		'controller' => 'product',
-		'action' => 'index',
+        'controller' => 'product',
+        'action' => 'index',
         'params' => '',
-	];
+    ];
 
     public function dispatch()
     {
