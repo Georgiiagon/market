@@ -6,9 +6,9 @@ use Core\Model;
 
 class Product extends Model
 {
-	protected $table = 'products';
+    protected $table = 'products';
 
-	public function withRating()
+    public function withRating()
     {
         return $this->compositeLeftjoin(
             'products.*, sum(ratings.rating)/count(ratings.rating) rating',
