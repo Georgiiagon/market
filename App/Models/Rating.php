@@ -6,5 +6,5 @@ use Core\Model;
 
 class Rating extends Model
 {
-	protected $table = 'ratings';
+    protected $table = 'ratings';
 }
